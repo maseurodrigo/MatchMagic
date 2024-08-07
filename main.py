@@ -13,7 +13,10 @@ load_dotenv(find_dotenv())
 
 # Bot Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hey! I'm ready to give you some tips");
+    await update.message.reply_text("Hey! I'm ready to give some tips");
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(f"Custom Tips: {os.environ.get('TIP_TRIGGER')} (doubleChance) (win)");
 
 async def tips_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(GetPredicdData(os.environ.get("PREDICD_AUTH_TOKEN"), os.environ.get("PREDICD_API_URL"), int(os.environ.get("DOUBLE_CHANCE_MIN")), int(os.environ.get("ONLY_WIN_MIN"))));
@@ -39,9 +42,9 @@ def handle_response(text: str) -> str:
             # Retrieve and return the predicted data
             return GetPredicdData(os.environ.get("PREDICD_AUTH_TOKEN"), os.environ.get("PREDICD_API_URL"), int(foundNumbers[0]), int(foundNumbers[1]))
         else:
-            return f"Invalid input! Its: '{os.environ.get('TIP_TRIGGER')} (doubleChance) (win)'"
-
-        return "Invalid Command!"
+            return f"Invalid Input!\n\nTry: {os.environ.get('TIP_TRIGGER')} (doubleChance) (win)"
+            
+    return "Invalid Command!"
 
 # Asynchronously handle incoming messages based on the chat type and content
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -80,6 +83,7 @@ if __name__ == '__main__':
 
     # Register command handlers for specific commands
     app.add_handler(CommandHandler('start', start_command))
+    app.add_handler(CommandHandler('help', help_command))
     app.add_handler(CommandHandler('tips', tips_command))
 
     # Register a message handler to process all text messages

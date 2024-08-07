@@ -36,19 +36,19 @@ def GetPredicdData(authToken: str, apiUrl: str, doubleChance: int, win: int) -> 
 
                 # Check for high probability home win
                 if prob_home_win > win:
-                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']} ({datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')})\n⚽ {match['homePrediction']}-{match['awayPrediction']} -> {match['homeTeamName']} ({match['probHomeWin']}% - {match['probDraw']}% - {match['probAwayWin']}%)"
+                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']}\n⏱️ {datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')}\n 🎯 {match['homeTeamName']} ({match['probHomeWin']}%)"
 
                 # Check if the probability of a home win or a draw exceeds the threshold
                 elif ((prob_home_win + prob_draw) > doubleChance):
-                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']} ({datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')})\n⚽ {match['homePrediction']}-{match['awayPrediction']} -> 1x ({match['probHomeWin']}% - {match['probDraw']}% - {match['probAwayWin']}%)"
+                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']}\n⏱️ {datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')}\n 🎯 1x ({match['probHomeWin']}% + {match['probDraw']}%)"
 
                 # Check for high probability away win
                 elif prob_away_win > win:
-                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']} ({datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')})\n⚽ {match['homePrediction']}-{match['awayPrediction']} -> {match['awayTeamName']} ({match['probHomeWin']}% - {match['probDraw']}% - {match['probAwayWin']}%)"
+                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']}\n⏱️ {datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')}\n 🎯 {match['awayTeamName']} ({match['probAwayWin']}%)"
                     
                 # Check if the probability of an away win or a draw exceeds the threshold
                 elif ((prob_away_win + prob_draw) > doubleChance):
-                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']} ({datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')})\n⚽ {match['homePrediction']}-{match['awayPrediction']} -> x2 ({match['probHomeWin']}% - {match['probDraw']}% - {match['probAwayWin']}%)"
+                    data_string += f"\n\n🏟️ {match['homeTeamName']} vs {match['awayTeamName']}\n⏱️ {datetime.strptime(match['dateTime'], dateFormat).strftime('%H:%M')}\n 🎯 x2 ({match['probDraw']}% + {match['probAwayWin']}%)"
 
             return data_string
 
