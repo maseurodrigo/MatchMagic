@@ -3,6 +3,8 @@ import os, re
 
 from os.path import join, dirname
 from dotenv import load_dotenv, find_dotenv
+
+from commands import *
 from predicd_data import GetPredicdData
 
 from telegram import Update
@@ -13,13 +15,19 @@ load_dotenv(find_dotenv())
 
 # Bot Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hey! I'm ready to give some tips");
+    await update.message.reply_text(start_message);
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"Custom Tips: {os.environ.get('TIP_TRIGGER')} (doubleChance) (win)");
+    await update.message.reply_text(help_message);
 
 async def tips_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(GetPredicdData(os.environ.get("PREDICD_AUTH_TOKEN"), os.environ.get("PREDICD_API_URL"), int(os.environ.get("DOUBLE_CHANCE_MIN")), int(os.environ.get("ONLY_WIN_MIN"))));
+    await update.message.reply_text(GetPredicdData(
+        os.environ.get("PREDICD_AUTH_TOKEN"), 
+        os.environ.get("BETTING_AUTH_TOKEN"), 
+        os.environ.get("PREDICD_API_URL"), 
+        os.environ.get("BETTING_API_URL"), 
+        int(os.environ.get("DOUBLE_CHANCE_MIN")), 
+        int(os.environ.get("ONLY_WIN_MIN"))));
 
 # Bot Responses
 def handle_response(text: str) -> str:
@@ -40,9 +48,15 @@ def handle_response(text: str) -> str:
             foundNumbers = [int(num) for num in numMatches]
             
             # Retrieve and return the predicted data
-            return GetPredicdData(os.environ.get("PREDICD_AUTH_TOKEN"), os.environ.get("PREDICD_API_URL"), int(foundNumbers[0]), int(foundNumbers[1]))
+            return GetPredicdData(
+                os.environ.get("PREDICD_AUTH_TOKEN"), 
+                os.environ.get("BETTING_AUTH_TOKEN"), 
+                os.environ.get("PREDICD_API_URL"), 
+                os.environ.get("BETTING_API_URL"), 
+                int(foundNumbers[0]), 
+                int(foundNumbers[1]))
         else:
-            return f"Invalid Input!\n\nTry: {os.environ.get('TIP_TRIGGER')} (doubleChance) (win)"
+            return f"Invalid Input!\n\nTry: {os.environ.get('TIP_TRIGGER')} (0-100)% (0-100)%"
             
     return "Invalid Command!"
 

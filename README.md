@@ -23,8 +23,8 @@ PREDICD_API_URL = "https://www.predicd.com/api/v1/matches/today/"
 PREDICD_AUTH_TOKEN = "Token xxxxx"
 
 # Predicd Settings
-DOUBLE_CHANCE_MIN = 80
-ONLY_WIN_MIN = 70
+DOUBLE_CHANCE_MIN = 82
+ONLY_WIN_MIN = 68
 
 # Telegram Bot Settings
 BOT_ACCESS_TOKEN = "xxxxx"
@@ -32,4 +32,9 @@ BOT_USERNAME = "@xxxxx"
 
 # Telegram Bot Triggers
 TIP_TRIGGER = "tips"
+
+# Betting API
+BETTING_API_URL = "https://api.betting-api.com/1xbet/football/line/all"
+BETTING_AUTH_TOKEN = "xxxxx"
+
 ```
