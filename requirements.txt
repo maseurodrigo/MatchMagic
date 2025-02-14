@@ -4,4 +4,4 @@ selenium-wire==5.1.0
 webdriver-manager==4.0.2
 jsonpath-ng==1.7.0
 chromedriver-autoinstaller==0.6.4
-typing==3.10.0.0
+typing==3.7.4.3
