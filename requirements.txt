@@ -8,3 +8,4 @@ jsonpath-ng==1.7.0
 selenium==4.28.1
 selenium-wire==5.1.0
 webdriver-manager==4.0.2
+blinker==1.9.0
