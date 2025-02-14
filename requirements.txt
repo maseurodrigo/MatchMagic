@@ -5,3 +5,7 @@ webdriver-manager==4.0.2
 jsonpath-ng==1.7.0
 chromedriver-autoinstaller==0.6.4
 typing==3.7.4.3
+python-dotenv==1.0.1
+python-telegram-bot==21.10
+requests==2.32.3
+schedule==1.2.2
