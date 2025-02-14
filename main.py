@@ -1,17 +1,67 @@
 # Import necessary modules
-import os, re
+import os, re, asyncio, schedule, time, threading
+
+from datetime import datetime
+from typing import List, Dict, Tuple
 
 from os.path import join, dirname
 from dotenv import load_dotenv, find_dotenv
 
 from commands import *
 from predicd_data import GetPredicdData
+from Scrapers.flashscore import ScrapeRedCards, ScrapeExtraTimes
 
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram import Update, Bot
+from telegram.ext import Application, Updater, CommandHandler, MessageHandler, filters, ContextTypes
 
 # Load environment variables from a .env file
 load_dotenv(find_dotenv())
+
+# Define temporary arrays
+tmp_stored_cards = []
+tmp_stored_extra_times = []
+
+async def red_cards_data():
+    # Declare the array as global to modify it inside the function
+    global tmp_stored_cards
+
+    # Call the function and store its returned data
+    scrapeRedCardsResult = ScrapeRedCards(
+        os.environ.get("PROXY_USERNAME"), 
+        os.environ.get("PROXY_PW"), 
+        os.environ.get("PROXY"), 
+        tmp_stored_cards)
+
+    # Iterate over key-value pairs
+    for key, value in scrapeRedCardsResult.items():
+        # Access the string and List[Tuple[str, str]] (scraped data)
+        tmp_stored_cards = value.copy()
+
+        if key:
+            # Create a bot instance using the bot's token
+            bot = Bot(token=os.environ.get("BOT_ACCESS_TOKEN"))
+            await bot.send_message(chat_id=os.environ.get("BOT_GROUP_ID"), text=key)
+
+async def extra_times_data():
+    # Declare the array as global to modify it inside the function
+    global tmp_stored_extra_times
+
+    # Call the function and store its returned data
+    scrapeExtraTimesResult = ScrapeExtraTimes(
+        os.environ.get("PROXY_USERNAME"), 
+        os.environ.get("PROXY_PW"), 
+        os.environ.get("PROXY"), 
+        tmp_stored_extra_times)
+
+    # Iterate over key-value pairs
+    for key, value in scrapeExtraTimesResult.items():
+        # Access the string and List[Tuple[str, str]] (scraped data)
+        tmp_stored_extra_times = value.copy()
+
+        if key:
+            # Create a bot instance using the bot's token
+            bot = Bot(token=os.environ.get("BOT_ACCESS_TOKEN"))
+            await bot.send_message(chat_id=os.environ.get("BOT_GROUP_ID"), text=key)
 
 # Bot Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -89,12 +139,38 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Print the update and the error that occurred to the console for debugging
     print(f"Update {update} caused error {context.error}")
 
+# Function to run the async function
+def run_red_cards():
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(red_cards_data())
+
+def run_extra_times():
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(extra_times_data())
+
+# Schedule the functions to run every x seconds
+# schedule.every(60).seconds.do(run_red_cards)
+# schedule.every(120).seconds.do(run_extra_times)
+
+# Function to handle the scheduling loop
+def schedule_loop():
+    # Function to keep the schedule running
+    while True:
+        # Run all pending tasks
+        schedule.run_pending()
+        # Wait for 5 seconds to avoid high CPU usage
+        time.sleep(5)
+
 # Entry point of the script when run as a standalone program
 if __name__ == '__main__':
 
+    # Start the scheduling loop in a separate thread
+    schedule_thread = threading.Thread(target=schedule_loop)
+    schedule_thread.start()
+    
     # Create an instance of the Application with the bot access token from environment variables
     app = Application.builder().token(os.environ.get("BOT_ACCESS_TOKEN")).build()
-
+    
     # Register command handlers for specific commands
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('help', help_command))
@@ -107,4 +183,4 @@ if __name__ == '__main__':
     app.add_error_handler(error)
 
     # Start polling for updates from the bot
-    app.run_polling(poll_interval=2)
+    app.run_polling(poll_interval=5)
