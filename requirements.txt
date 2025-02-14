@@ -1,7 +1,7 @@
-requests==2.31.0
-selenium==4.9.1
+requests==2.32.3
+selenium==4.28.1
 selenium-wire==5.1.0
-webdriver-manager==4.8.1
-jsonpath-ng==1.5.3
-chromedriver-autoinstaller==0.4.0
-typing==3.7.4.3
+webdriver-manager==4.0.2
+jsonpath-ng==1.7.0
+chromedriver-autoinstaller==0.6.4
+typing==3.10.0.0
