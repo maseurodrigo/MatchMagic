@@ -33,8 +33,4 @@ BOT_USERNAME = "@xxxxx"
 # Telegram Bot Triggers
 TIP_TRIGGER = "tips"
 
-# Betting API
-BETTING_API_URL = "https://api.betting-api.com/1xbet/football/line/all"
-BETTING_AUTH_TOKEN = "xxxxx"
-
 ```

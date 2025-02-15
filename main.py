@@ -1,5 +1,5 @@
 # Import necessary modules
-import os, re, asyncio, schedule, time, threading
+import os, re
 
 from datetime import datetime
 from typing import List, Dict, Tuple
@@ -9,59 +9,12 @@ from dotenv import load_dotenv, find_dotenv
 
 from commands import *
 from predicd_data import GetPredicdData
-from Scrapers.flashscore import ScrapeRedCards, ScrapeExtraTimes
 
 from telegram import Update, Bot
 from telegram.ext import Application, Updater, CommandHandler, MessageHandler, filters, ContextTypes
 
 # Load environment variables from a .env file
 load_dotenv(find_dotenv())
-
-# Define temporary arrays
-tmp_stored_cards = []
-tmp_stored_extra_times = []
-
-async def red_cards_data():
-    # Declare the array as global to modify it inside the function
-    global tmp_stored_cards
-
-    # Call the function and store its returned data
-    scrapeRedCardsResult = ScrapeRedCards(
-        os.environ.get("PROXY_USERNAME"), 
-        os.environ.get("PROXY_PW"), 
-        os.environ.get("PROXY"), 
-        tmp_stored_cards)
-
-    # Iterate over key-value pairs
-    for key, value in scrapeRedCardsResult.items():
-        # Access the string and List[Tuple[str, str]] (scraped data)
-        tmp_stored_cards = value.copy()
-
-        if key:
-            # Create a bot instance using the bot's token
-            bot = Bot(token=os.environ.get("BOT_ACCESS_TOKEN"))
-            await bot.send_message(chat_id=os.environ.get("BOT_GROUP_ID"), text=key)
-
-async def extra_times_data():
-    # Declare the array as global to modify it inside the function
-    global tmp_stored_extra_times
-
-    # Call the function and store its returned data
-    scrapeExtraTimesResult = ScrapeExtraTimes(
-        os.environ.get("PROXY_USERNAME"), 
-        os.environ.get("PROXY_PW"), 
-        os.environ.get("PROXY"), 
-        tmp_stored_extra_times)
-
-    # Iterate over key-value pairs
-    for key, value in scrapeExtraTimesResult.items():
-        # Access the string and List[Tuple[str, str]] (scraped data)
-        tmp_stored_extra_times = value.copy()
-
-        if key:
-            # Create a bot instance using the bot's token
-            bot = Bot(token=os.environ.get("BOT_ACCESS_TOKEN"))
-            await bot.send_message(chat_id=os.environ.get("BOT_GROUP_ID"), text=key)
 
 # Bot Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -72,12 +25,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def tips_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(GetPredicdData(
-        os.environ.get("PREDICD_AUTH_TOKEN"), 
-        os.environ.get("BETTING_AUTH_TOKEN"), 
-        os.environ.get("PREDICD_API_URL"), 
-        os.environ.get("BETTING_API_URL"), 
-        int(os.environ.get("DOUBLE_CHANCE_MIN")), 
-        int(os.environ.get("ONLY_WIN_MIN"))));
+        os.environ.get("PREDICD_AUTH_TOKEN"), os.environ.get("PREDICD_API_URL"), 
+        int(os.environ.get("DOUBLE_CHANCE_MIN")), int(os.environ.get("ONLY_WIN_MIN"))));
 
 # Bot Responses
 def handle_response(text: str) -> str:
@@ -98,13 +47,7 @@ def handle_response(text: str) -> str:
             foundNumbers = [int(num) for num in numMatches]
             
             # Retrieve and return the predicted data
-            return GetPredicdData(
-                os.environ.get("PREDICD_AUTH_TOKEN"), 
-                os.environ.get("BETTING_AUTH_TOKEN"), 
-                os.environ.get("PREDICD_API_URL"), 
-                os.environ.get("BETTING_API_URL"), 
-                int(foundNumbers[0]), 
-                int(foundNumbers[1]))
+            return GetPredicdData(os.environ.get("PREDICD_AUTH_TOKEN"), os.environ.get("PREDICD_API_URL"), int(foundNumbers[0]), int(foundNumbers[1]))
         else:
             return f"Invalid Input!\n\nTry: {os.environ.get('TIP_TRIGGER')} (0-100)% (0-100)%"
             
@@ -139,35 +82,9 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Print the update and the error that occurred to the console for debugging
     print(f"Update {update} caused error {context.error}")
 
-# Function to run the async function
-def run_red_cards():
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    asyncio.run(red_cards_data())
-
-def run_extra_times():
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    asyncio.run(extra_times_data())
-
-# Schedule the functions to run every x seconds
-# schedule.every(60).seconds.do(run_red_cards)
-# schedule.every(120).seconds.do(run_extra_times)
-
-# Function to handle the scheduling loop
-def schedule_loop():
-    # Function to keep the schedule running
-    while True:
-        # Run all pending tasks
-        schedule.run_pending()
-        # Wait for 5 seconds to avoid high CPU usage
-        time.sleep(5)
-
 # Entry point of the script when run as a standalone program
 if __name__ == '__main__':
 
-    # Start the scheduling loop in a separate thread
-    schedule_thread = threading.Thread(target=schedule_loop)
-    schedule_thread.start()
-    
     # Create an instance of the Application with the bot access token from environment variables
     app = Application.builder().token(os.environ.get("BOT_ACCESS_TOKEN")).build()
     
